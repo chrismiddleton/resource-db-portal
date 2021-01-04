@@ -108,8 +108,8 @@ getImmediatePrereqs <- function(topics, targetTopics, applicationsOnly = FALSE) 
         dplyr::pull(parent)
 }
 
-findTopicsToLearn <- function(topics, topicToLearn, applicationsOnly) {
-    topicsToLearn <- c(topicToLearn)
+findTopicsToLearn <- function(topics, topicsToLearn, applicationsOnly) {
+    topicsToLearn <- topicsToLearn
     topicsChecked <- c()
     while (TRUE) {
         topicsToCheck <- setdiff(topicsToLearn, topicsChecked)
@@ -245,9 +245,9 @@ findResourcesToLearnFrom <- function(resources, rootTopics, topicsToLearn, showT
         dplyr::mutate(is_root_topic = topic %in% rootTopics)
 }
 
-buildLearningPlan <- function(resources, topics, rootTopics, topicToLearn,
-                              applicationsOnly, showTopicsWithoutResources) {
-    topicsToLearn <- findTopicsToLearn(topics, topicToLearn, applicationsOnly)
+buildLearningPlan <- function(resources, topics, rootTopics, topicsToLearn,
+                              applicationsOnly = FALSE, showTopicsWithoutResources = FALSE) {
+    topicsToLearn <- findTopicsToLearn(topics, topicsToLearn, applicationsOnly)
     distances <- env()
     # alternate way of sorting: give each topic a number
     # representing its maximum distance from the root
