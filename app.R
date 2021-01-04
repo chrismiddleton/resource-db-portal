@@ -155,6 +155,7 @@ isAncestorTopic <- function(topics, x, y, checked = character()) {
                                              checked = unique(c(checked, yParents))))))
     }
 }
+
 partialRankingToRanking <- function(ranking) {
     max <- max(ranking)
     if (is.na(max)) return(integer())
@@ -251,19 +252,21 @@ findResourcesToLearnFrom <- function(resources, rootTopics, topicsToLearn, showT
         dplyr::mutate(is_root_topic = topic %in% rootTopics)
 }
 
-buildLearningPlan <- function(resources, topics, rootTopics, topicsToLearn,
-                              applicationsOnly = FALSE, showTopicsWithoutResources = FALSE) {
-    topicsToLearn <- findTopicsToLearn(topics, topicsToLearn, applicationsOnly)
+sortTopicsByGenerality <- function(topics, topicsToSort) {
     distances <- env()
-    # alternate way of sorting: give each topic a number
-    # representing its maximum distance from the root
-    # and then sort based on that function (this can be the ranking)
-    maxTopicDistances <- unlist(lapply(topicsToLearn, function(topic) {
+    maxTopicDistances <- unlist(lapply(topicsToSort, function(topic) {
         getMaxTopicDistance(topics, topic, distances = distances)
     }))
     # We add 1 because they start at 0
     ranking <- partialRankingToRanking(maxTopicDistances + 1)
-    topicsToLearn <- sortByRanking(topicsToLearn, ranking)
+    topicsToSort <- sortByRanking(topicsToSort, ranking)
+    topicsToSort
+}
+
+buildLearningPlan <- function(resources, topics, rootTopics, topicsToLearn,
+                              applicationsOnly = FALSE, showTopicsWithoutResources = FALSE) {
+    topicsToLearn <- findTopicsToLearn(topics, topicsToLearn, applicationsOnly) %>%
+        {sortTopicsByGenerality(topics, .)}
     resourcesToLearnFrom <- findResourcesToLearnFrom(resources, rootTopics, topicsToLearn,
                                                      showTopicsWithoutResources)
     resourcesToLearnFrom %>%
