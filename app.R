@@ -26,7 +26,8 @@ readResourcesCsv <- function(path) {
                         finished = readr::col_logical(),
                         `finished at` = readr::col_datetime(),
                         prerequisites = readr::col_character(),
-                        series = readr::col_character()
+                        series = readr::col_character(),
+                        comprehensive = readr::col_logical()
                     )) %>%
         dplyr::arrange_all()
 }
@@ -189,6 +190,7 @@ sortByRanking <- function(x, ranking) {
 
 findResourcesToLearnFrom <- function(resources, rootTopics, topicsToLearn, showTopicsWithoutResources) {
     numbered <- resources %>%
+        dplyr::filter(is.na(comprehensive) | comprehensive) %>%
         dplyr::filter(unlist(lapply(topic, function(resourceTopics) {
             any(topicsToLearn %in% stringr::str_split(resourceTopics, '\\s*,\\s*'))
         }))) %>%
