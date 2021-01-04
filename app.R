@@ -174,10 +174,6 @@ partialRankingToRanking <- function(ranking) {
     ranking
 }
 
-listParentVars <- function(n = 1) {
-    frame <- sys.frame(-(n + 1))
-    sapply(names(frame), function(name) frame[[name]], simplify = FALSE)
-}
 getMaxTopicDistance <- function(topics, topic, checked = character(), distances = env()) {
     # TODO: how can we properly detect a loop without messing other things up?
     if (!is.null(distances[[topic]])) return(distances[[topic]])
