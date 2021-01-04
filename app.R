@@ -290,7 +290,7 @@ ui <- shiny::navbarPage(
     ),
     tabPanel(
         'Resources',
-        DT::DTOutput('resources')
+        shiny::uiOutput('resources')
     ),
     tabPanel(
         'In progress',
@@ -441,8 +441,39 @@ server <- function(input, output) {
         currentTopicReactive(NULL)
     })
     
-    output$resources <- DT::renderDT({
+    output$resourcesTable <- DT::renderDT({
         resources
+    })
+    
+    output$resourcesLearningPlan <- DT::renderDT({
+        if (length(input$resourcesTable_rows_selected) <= 0) return()
+        selectedResources <- resources[input$resourcesTable_rows_selected, ]
+        selectedTopics <- selectedResources %>%
+            dplyr::pull(topic) %>%
+            stringr::str_split('\\s*,\\s*') %>%
+            unlist() %>%
+            sort() %>%
+            unique() %>%
+            {Filter(function(x) !is.na(x) && nchar(x) > 0, .)}
+        selectedPrereqs <- selectedResources %>% dplyr::pull(prerequisites) %>%
+            stringr::str_split('\\s*,\\s*') %>%
+            unlist() %>%
+            sort() %>%
+            unique() %>%
+            {Filter(function(x) !is.na(x) && nchar(x) > 0, .)}
+        topicsToLearn <- c(selectedTopics, selectedPrereqs) %>%
+            sort() %>%
+            unique()
+        if (length(topicsToLearn) <= 0) return()
+        buildLearningPlan(resources, topics, rootTopics, topicsToLearn, applicationsOnly = FALSE, showTopicsWithoutResources = TRUE)
+    })
+    
+    output$resources <- shiny::renderUI({
+        shiny::div(
+            DT::DTOutput('resourcesTable'),
+            shiny::h3('Learning Plan'),
+            DT::DTOutput('resourcesLearningPlan')
+        )
     })
     
     output$inProgress <- DT::renderDT({
