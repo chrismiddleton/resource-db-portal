@@ -65,12 +65,19 @@ findParentTopics <- function(topics, topic) {
 }
 
 getResourceTopics <- function(resources) {
-    resources %>%
+    topics <- resources %>%
         dplyr::pull(topic) %>%
         stringr::str_split('\\s*,\\s*') %>%
         unlist() %>%
         sort() %>%
         unique()
+    prereqs <- resources %>%
+        dplyr::pull(prerequisites) %>%
+        stringr::str_split('\\s*,\\s*') %>%
+        unlist() %>%
+        sort() %>%
+        unique()
+    c(topics, prereqs) %>% sort() %>% unique()
 }
 
 getUnlistedResourceTopics <- function(topics, resourceTopics) {
