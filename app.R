@@ -1,5 +1,6 @@
 library(dplyr)
 library(DT)
+library(jsonlite)
 library(magrittr)
 library(readr)
 library(rlang)
@@ -323,8 +324,9 @@ ui <- shiny::navbarPage(
 )
 
 server <- function(input, output) {
-    topics <- readTopicsCsv('../../../notes/resources/topics.csv')
-    resources <- readResourcesCsv('../../../notes/resources/resources.csv')
+    settings <- jsonlite::read_json('settings.json')
+    topics <- readTopicsCsv(settings$topics)
+    resources <- readResourcesCsv(settings$resources)
     
     currentTopicReactive <- shiny::reactiveVal(NULL)
     
